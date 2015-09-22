@@ -1,0 +1,47 @@
+{{define "page"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>WebSocket Example</title>
+</head>
+<body>
+<p>WebSocket Data<p>
+        <textarea id="dataChannelSend" placeholder="Press Start, enter some text, then press Send."></textarea>
+        <textarea id="dataChannelReceive" disabled></textarea>
+  <div id="buttons">
+    <button id="sendButton">Send</button>
+  </div>
+
+<pre id="fileData">{{.Data}}</pre>
+<script src="//cdn.jsdelivr.net/sockjs/1.0.0/sockjs.min.js"></script>
+<script type="text/javascript">
+  var sendChannel, receiveChannel;
+
+  var sendButton = document.getElementById("sendButton");
+  sendButton.onclick = sendMessage;
+  sendButton.disabled = false;
+
+  var data = document.getElementById("fileData");
+
+  var conn;
+
+  function sendMessage() {
+    var data = document.getElementById("dataChannelSend").value;
+    conn.send(data)
+  }
+
+  (function() {
+    conn = new WebSocket("ws://{{.Host}}/ws");
+    conn.onclose = function(evt) {
+      data.textContent = 'Connection closed';
+    }
+    conn.onmessage = function(evt) {
+      console.log('message from server >>>%s', evt.data);
+      document.getElementById("dataChannelReceive").value = event.data;
+      data.textContent = evt.data;
+    }
+  })();
+</script>
+</body>
+</html>
+{{end}}
