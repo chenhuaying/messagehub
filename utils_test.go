@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"testing"
 )
@@ -28,10 +29,16 @@ func TestGetTimeStamp(t *testing.T) {
 func TestGetPeerId(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		id := getPeerId()
-		fmt.Println(id)
+		fmt.Println(id, hex.EncodeToString(id))
 		length := len(id)
 		if length != 12 {
 			t.Errorf("length not valide value[%d]", length)
 		}
+	}
+}
+
+func TestGetHexPeerId(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		fmt.Println(getHexPeerId())
 	}
 }

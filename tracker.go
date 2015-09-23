@@ -5,17 +5,17 @@ import (
 )
 
 type Tracker struct {
-	peers   map[string]*Peer
+	peers   Peers
 	comeIn  chan *Peer
 	downOff chan *Peer
-	request chan []byte
+	request chan Task
 }
 
 var tracker = Tracker{
-	make(map[string]*Peer),
+	make(Peers),
 	make(chan *Peer, 256),
 	make(chan *Peer, 256),
-	make(chan []byte, 256),
+	make(chan Task, 256),
 }
 
 func (t *Tracker) run() {
@@ -28,15 +28,9 @@ func (t *Tracker) run() {
 			delete(t.peers, p.ws.RemoteAddr().String())
 			close(p.output)
 		case r := <-t.request:
-			log.Println("tracker receive<<<", r)
-			for _, peer := range t.peers {
-				select {
-				case peer.output <- r:
-				default:
-					log.Println("sending block close peer")
-					close(peer.output)
-					delete(t.peers, peer.ws.RemoteAddr().String())
-				}
+			if r != nil {
+				log.Println("tracker receive<<<", r)
+				r.doTask(t.peers)
 			}
 		}
 	}

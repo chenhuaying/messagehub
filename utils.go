@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net"
@@ -87,4 +88,8 @@ func getPeerId() []byte {
 	peerid = append(peerid, incBytes[0:3]...)
 
 	return peerid
+}
+
+func getHexPeerId() string {
+	return hex.EncodeToString(getPeerId())
 }
