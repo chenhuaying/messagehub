@@ -30,9 +30,13 @@ var (
 )
 
 type Peer struct {
+	uid    string
 	ws     *websocket.Conn
 	output chan []byte
+	parser Parser
 }
+
+type Peers map[string]*Peer
 
 // write writes a message with the given message type and payload.
 func (p *Peer) write(mt int, payload []byte) error {
@@ -69,7 +73,8 @@ func (p *Peer) readRoutine() {
 			break
 		}
 		log.Println(msgType, string(bytes))
-		tracker.request <- bytes
+		task := p.parser.parse(bytes, p)
+		tracker.request <- task
 	}
 }
 
@@ -115,7 +120,7 @@ func handlerws(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(r.RemoteAddr, r.Host)
 
-	peer := &Peer{ws, make(chan []byte, 256)}
+	peer := &Peer{getHexPeerId(), ws, make(chan []byte, 256), &SimpleProtocol{}}
 	tracker.comeIn <- peer
 
 	go peer.writeRoutine()
