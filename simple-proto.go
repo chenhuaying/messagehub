@@ -11,7 +11,6 @@ import (
 type ParseTable map[string]func(data map[string]interface{}, p *Peer) Task
 
 var parseTable = ParseTable{
-	//"broadcast": NewBroadcast,
 	"broadcast": genBroadcastTask,
 }
 
@@ -30,6 +29,10 @@ func genBroadcastTask(data map[string]interface{}, p *Peer) Task {
 
 //parse(message []byte, peer *Peer) CheckList
 func (p *SimpleProtocol) parse(raw []byte, peer *Peer) Task {
+	// clear
+	p.Data = nil
+	p.Opt = ""
+
 	if err := json.Unmarshal(raw, p); err != nil {
 		log.Println("SimpleProtocol parse error:", err)
 		return nil
@@ -37,13 +40,21 @@ func (p *SimpleProtocol) parse(raw []byte, peer *Peer) Task {
 	//log.Println(p.Opt, p.Data.(map[string]interface{})["message"])
 	//log.Println(p.Opt, p.Data.(BroadcastMessage)["message"])
 	//message := p.Data.(map[string]interface{})["message"].(string)
-	message := p.Data.(map[string]interface{})
-	opt := strings.ToLower(p.Opt)
-
-	processor := parseTable[opt]
-	if processor != nil {
-		return processor(message, peer)
-	} else {
-		return nil
+	if p.Opt != "" && p.Data != nil {
+		if message, ok := p.Data.(map[string]interface{}); ok {
+			opt := strings.ToLower(p.Opt)
+			log.Println("Parse Protocol OK:", opt, message)
+			processor := parseTable[opt]
+			if processor != nil {
+				return processor(message, peer)
+			} else {
+				// no implemention
+				return nil
+			}
+		} else {
+			return nil
+		}
 	}
+
+	return nil
 }
