@@ -43,4 +43,10 @@ func TestParse(t *testing.T) {
 			}
 		}
 	}
+
+	request = `{"opt": "register", "data":{"channelid":"channelone"}}`
+	res = msg.parse([]byte(request), &peer)
+	if res == nil {
+		t.Errorf("parse error, have no register protocol")
+	}
 }

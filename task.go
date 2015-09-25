@@ -20,11 +20,18 @@ type CheckList struct {
 
 type Task interface {
 	doTask(Peers) error
+	peerUid() string
+	peerCid() string
+	valid() bool
 }
 
 type Broadcast struct {
 	data []byte
 	peer *Peer
+}
+
+func (p *Peer) peerUid() string {
+	return p.uid
 }
 
 func (b *Broadcast) doTask(peers Peers) error {
@@ -45,6 +52,60 @@ func (b *Broadcast) doTask(peers Peers) error {
 	return nil
 }
 
+func (b *Broadcast) peerUid() string {
+	return b.peer.uid
+}
+
+func (b *Broadcast) peerCid() string {
+	return b.peer.cid
+}
+
+func (b *Broadcast) valid() bool {
+	return isRegistered(b.peer)
+}
+
 func NewBroadcast(message []byte, p *Peer) Task {
 	return &Broadcast{data: message, peer: p}
+}
+
+type Register struct {
+	channelId string
+	peer      *Peer
+}
+
+func (r *Register) doTask(peers Peers) error {
+	if _, found := peers[r.peer.uid]; !found {
+		log.Println("add peer:", r.peer.uid)
+		// add peer to channel peer map
+		peers[r.peer.uid] = r.peer
+	}
+	log.Println("doTask peers:", peers)
+	// set peer channleId
+	r.peer.cid = r.channelId
+
+	return nil
+}
+
+func (r *Register) peerUid() string {
+	return r.peer.uid
+}
+
+func (r *Register) peerCid() string {
+	return r.channelId
+}
+
+func (r *Register) valid() bool {
+	return true
+}
+
+func NewRegister(id []byte, p *Peer) Task {
+	return &Register{channelId: string(id), peer: p}
+}
+
+func isRegistered(p *Peer) bool {
+	if p.cid == "" {
+		return false
+	} else {
+		return true
+	}
 }

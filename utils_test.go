@@ -42,3 +42,25 @@ func TestGetHexPeerId(t *testing.T) {
 		fmt.Println(getHexPeerId())
 	}
 }
+
+func TestGenGroupNum(t *testing.T) {
+	data1 := "hello golang"
+	data2 := "this is a test"
+	data3 := "hello golang"
+
+	hash1 := genBucketNum(data1)
+	hash2 := genBucketNum(data2)
+	hash3 := genBucketNum(data3)
+	hash11 := genBucketNum(data1)
+
+	if hash1 == hash2 {
+		t.Errorf("hash1 must not equal to hash2")
+	}
+
+	if hash1 != hash3 {
+		t.Errorf("hash1 must equal to hash3")
+	}
+	if hash1 != hash11 {
+		t.Errorf("hash1 must equal to hash11")
+	}
+}

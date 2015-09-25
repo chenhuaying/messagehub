@@ -31,6 +31,7 @@ var (
 
 type Peer struct {
 	uid    string
+	cid    string
 	ws     *websocket.Conn
 	output chan []byte
 	parser Parser
@@ -120,7 +121,7 @@ func handlerws(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(r.RemoteAddr, r.Host)
 
-	peer := &Peer{getHexPeerId(), ws, make(chan []byte, 256), &SimpleProtocol{}}
+	peer := &Peer{getHexPeerId(), "", ws, make(chan []byte, 256), &SimpleProtocol{}}
 	tracker.comeIn <- peer
 
 	go peer.writeRoutine()

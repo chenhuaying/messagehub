@@ -40,6 +40,10 @@
       document.getElementById("dataChannelReceive").value = event.data;
       data.textContent = evt.data;
     }
+
+    conn.onopen = function(evt) {
+      conn.send('{"opt": "register", "data":{"channelid":"channelone"}}');
+    }
   })();
 </script>
 </body>
