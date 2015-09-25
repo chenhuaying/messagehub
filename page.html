@@ -3,10 +3,16 @@
 <html lang="en">
 <head>
 <title>WebSocket Example</title>
+<style type="text/css">
+textarea {
+  height: 200px;
+  width: 40%;
+}
+</style>
 </head>
 <body>
 <p>WebSocket Data<p>
-        <textarea id="dataChannelSend" placeholder="Press Start, enter some text, then press Send."></textarea>
+        <textarea id="dataChannelSend" placeholder="enter some text, then press Send."></textarea>
         <textarea id="dataChannelReceive" disabled></textarea>
   <div id="buttons">
     <button id="sendButton">Send</button>
