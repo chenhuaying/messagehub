@@ -11,8 +11,9 @@ import (
 type ParseTable map[string]func(data map[string]interface{}, p *Peer) Task
 
 var parseTable = ParseTable{
-	"broadcast": genBroadcastTask,
-	"register":  genRegisterTask,
+	"broadcast":  genBroadcastTask,
+	"register":   genRegisterTask,
+	"unregister": genUnregisterTask,
 }
 
 type SimpleProtocol struct {
@@ -31,6 +32,11 @@ func genBroadcastTask(data map[string]interface{}, p *Peer) Task {
 func genRegisterTask(data map[string]interface{}, p *Peer) Task {
 	channelId := []byte(data["channelid"].(string))
 	return NewRegister(channelId, p)
+}
+
+func genUnregisterTask(data map[string]interface{}, p *Peer) Task {
+	channelId := data["channelid"].(string)
+	return NewUnregister(channelId, p)
 }
 
 //parse(message []byte, peer *Peer) CheckList

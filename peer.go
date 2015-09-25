@@ -75,7 +75,9 @@ func (p *Peer) readRoutine() {
 		}
 		log.Println(msgType, string(bytes))
 		task := p.parser.parse(bytes, p)
+		// XXX TODO: add pretask
 		tracker.request <- task
+		// XXX TODO: add posttask
 	}
 }
 

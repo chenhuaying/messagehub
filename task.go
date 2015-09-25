@@ -25,6 +25,9 @@ type Task interface {
 	valid() bool
 }
 
+//===================
+// Do broadcast task
+//===================
 type Broadcast struct {
 	data []byte
 	peer *Peer
@@ -68,6 +71,9 @@ func NewBroadcast(message []byte, p *Peer) Task {
 	return &Broadcast{data: message, peer: p}
 }
 
+//===================
+// Do register task
+//===================
 type Register struct {
 	channelId string
 	peer      *Peer
@@ -95,6 +101,8 @@ func (r *Register) peerCid() string {
 }
 
 func (r *Register) valid() bool {
+	// XXX TODO unregister-first: if peer's channelid != register's channel id,
+	//then unregister old channel and register new
 	return true
 }
 
@@ -102,6 +110,42 @@ func NewRegister(id []byte, p *Peer) Task {
 	return &Register{channelId: string(id), peer: p}
 }
 
+//===================
+// Do unregister task
+//===================
+type Unregister struct {
+	channelId string
+	peer      *Peer
+}
+
+func (u *Unregister) doTask(peers Peers) error {
+	delete(peers, u.peer.uid)
+	// clear peer channelId
+	u.peer.cid = ""
+	return nil
+}
+
+func (u *Unregister) peerUid() string {
+	return u.peer.uid
+}
+
+func (u *Unregister) peerCid() string {
+	return u.channelId
+}
+
+func (u *Unregister) valid() bool {
+	// it can be true when unregister-first implemented
+	if u.peer.cid != u.channelId {
+		return false
+	}
+	return true
+}
+
+func NewUnregister(id string, p *Peer) Task {
+	return &Unregister{channelId: id, peer: p}
+}
+
+// check peer is registered or not
 func isRegistered(p *Peer) bool {
 	if p.cid == "" {
 		return false
