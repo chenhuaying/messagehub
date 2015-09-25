@@ -34,6 +34,7 @@ type Peer struct {
 	cid    string
 	ws     *websocket.Conn
 	output chan []byte
+	done   chan struct{}
 	parser Parser
 }
 
@@ -50,6 +51,7 @@ func (p *Peer) readRoutine() {
 		log.Println("reading routine will stop")
 		tracker.downOff <- p
 		p.ws.Close()
+		close(p.done)
 	}()
 
 	p.ws.SetReadLimit(512)
@@ -123,7 +125,7 @@ func handlerws(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(r.RemoteAddr, r.Host)
 
-	peer := &Peer{getHexPeerId(), "", ws, make(chan []byte, 256), &SimpleProtocol{}}
+	peer := &Peer{getHexPeerId(), "", ws, make(chan []byte, 256), make(chan struct{}), &SimpleProtocol{}}
 	tracker.comeIn <- peer
 
 	go peer.writeRoutine()

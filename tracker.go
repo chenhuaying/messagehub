@@ -56,6 +56,7 @@ func (t *Tracker) run() {
 			t.peers[p.ws.RemoteAddr().String()] = p
 		case p := <-t.downOff:
 			delete(t.peers, p.ws.RemoteAddr().String())
+			// XXX TODO: delete it from channel peer pool
 			close(p.output)
 		case r := <-t.request:
 			if r != nil {
