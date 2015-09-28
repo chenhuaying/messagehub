@@ -56,7 +56,26 @@ func (t *Tracker) run() {
 			t.peers[p.ws.RemoteAddr().String()] = p
 		case p := <-t.downOff:
 			delete(t.peers, p.ws.RemoteAddr().String())
-			// XXX TODO: delete it from channel peer pool
+			// delete it from channel peer pool
+			group := genBucketNum(p.cid)
+			log.Println("group:", group)
+			bucket := t.bucketPool.Buckets[group]
+			// this Container  just a local variable
+			if _, ok := bucket.Containers[p.cid]; !ok {
+				log.Printf("buckets[%d]>>containers[%s] not found with an unknwon error\n", group, p.cid)
+				break
+			}
+			container := bucket.Containers[p.cid]
+			log.Println("Cid:", p.cid, container)
+			if container.peers == nil {
+				log.Printf("buckets[%d]>>containers[%s]>>peers not initialize with an unknwon error\n", group, p.cid)
+				break
+			}
+			peers := container.peers
+			log.Println("peers:", peers)
+			delete(peers, p.uid)
+			// NOTE: this may cause writing to this pipe panic!!!
+			close(p.output)
 		case r := <-t.request:
 			if r != nil {
 				log.Println("tracker receive<<<", r)
