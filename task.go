@@ -45,7 +45,6 @@ func (b *Broadcast) doTask(peers Peers) error {
 		}
 		select {
 		case peer.output <- b.data:
-		case <-peer.done:
 		default:
 			// XXX TODO: just block sending, close is right?
 			log.Println("sending block close peer")
